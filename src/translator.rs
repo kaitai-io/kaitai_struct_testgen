@@ -99,7 +99,6 @@ mod tests {
     #[test]
     fn int() {
         let expr = Expr::Int(BigUint::from(u64::MAX));
-        // https://doc.rust-lang.org/1.68.2/std/primitive.i64.html#associatedconstant.MIN
         assert_eq!(translate(&expr), "18446744073709551615");
     }
 
