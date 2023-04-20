@@ -103,6 +103,12 @@ mod tests {
     }
 
     #[test]
+    fn float() {
+        let expr = Expr::Float(PositiveFiniteF64::try_from(std::f64::consts::PI).unwrap());
+        assert_eq!(translate(&expr), "3.141592653589793");
+    }
+
+    #[test]
     fn float_zero() {
         let expr = Expr::Float(PositiveFiniteF64::try_from(0.0).unwrap());
         assert_eq!(translate(&expr), "0.0");
@@ -144,12 +150,6 @@ mod tests {
         assert_eq!(value.to_bits(), 0x3F1A_36E2_EB1C_432C_u64);
         let expr = Expr::Float(PositiveFiniteF64::try_from(value).unwrap());
         assert_eq!(translate(&expr), "9.999999999999999e-5");
-    }
-
-    #[test]
-    fn float() {
-        let expr = Expr::Float(PositiveFiniteF64::try_from(std::f64::consts::PI).unwrap());
-        assert_eq!(translate(&expr), "3.141592653589793");
     }
 
     #[test]
