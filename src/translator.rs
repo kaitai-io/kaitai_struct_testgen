@@ -398,16 +398,14 @@ mod tests {
             op: BinaryOp::Eq,
             r: Box::new(Expr::CondOp {
                 cond: Box::new(Expr::Bool(true)),
-                if_true: Box::new(Expr::Str("Sunny day".to_string())),
-                if_false: Box::new(
-                    Expr::Attribute {
-                        value: Box::new(Expr::Int(BigUint::from(0_u32))),
-                        attr_name: "to_s".to_string(),
-                    }
-                ),
+                if_true: Box::new(Expr::Attribute {
+                    value: Box::new(Expr::Name("_io".to_string())),
+                    attr_name: "eof".to_string(),
+                }),
+                if_false: Box::new(Expr::Bool(false)),
             }),
         };
-        assert_eq!(translate(&expr), "(false == (true ? 'Sunny day' : 0.to_s))");
+        assert_eq!(translate(&expr), "(false == (true ? _io.eof : false))");
     }
 
     #[test]
@@ -416,17 +414,15 @@ mod tests {
             l: Box::new(Expr::Bool(true)),
             op: BinaryOp::Ne,
             r: Box::new(Expr::CondOp {
-                cond: Box::new(Expr::Bool(false)),
-                if_true: Box::new(Expr::Str("Sunny day".to_string())),
-                if_false: Box::new(
-                    Expr::Attribute {
-                        value: Box::new(Expr::Int(BigUint::from(0_u32))),
-                        attr_name: "to_s".to_string(),
-                    }
-                ),
+                cond: Box::new(Expr::Bool(true)),
+                if_true: Box::new(Expr::Attribute {
+                    value: Box::new(Expr::Name("_io".to_string())),
+                    attr_name: "eof".to_string(),
+                }),
+                if_false: Box::new(Expr::Bool(false)),
             }),
         };
-        assert_eq!(translate(&expr), "(true != (false ? 'Sunny day' : 0.to_s))");
+        assert_eq!(translate(&expr), "(true != (true ? _io.eof : false))");
     }
 
     #[test]
