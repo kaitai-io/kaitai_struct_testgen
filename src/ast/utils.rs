@@ -74,7 +74,7 @@ mod tests {
     /// https://en.wikipedia.org/wiki/Double-precision_floating-point_format#Double-precision_examples
     /// (Max. subnormal double)
     fn pos_max_subnormal() -> f64 {
-        ((f64::MIN_EXP - 1) as f64).exp2() * (1.0 - ((-(f64::MANTISSA_DIGITS as i32) + 1) as f64).exp2())
+        ((f64::MIN_EXP - 1) as f64).exp2() * (1.0 - (-((f64::MANTISSA_DIGITS - 1) as i32) as f64).exp2())
     }
 
     /// https://en.wikipedia.org/wiki/Double-precision_floating-point_format#Double-precision_examples
