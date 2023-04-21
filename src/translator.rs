@@ -5,12 +5,11 @@ pub fn translate(expr: &Expr) -> String {
         Expr::Int(x) => x.to_string(),
         Expr::Float(x) => {
             let value = x.value();
-            let formatted =
-                if should_format_float_with_exponent(value) {
-                    format!("{:e}", value)
-                } else {
-                    value.to_string()
-                };
+            let formatted = if should_format_float_with_exponent(value) {
+                format!("{:e}", value)
+            } else {
+                value.to_string()
+            };
             if formatted.chars().all(|ch| ch.is_ascii_digit()) {
                 // The float has been formatted as a valid integer, which means that KSC would
                 // interpret it as an integer if we leave it as is. But we don't want that - this
@@ -19,9 +18,13 @@ pub fn translate(expr: &Expr) -> String {
             } else {
                 formatted
             }
-        },
+        }
         Expr::Str(x) => {
-            assert!(!x.contains('\''), "strings containing a single quote (') not supported yet (got {})", x);
+            assert!(
+                !x.contains('\''),
+                "strings containing a single quote (') not supported yet (got {})",
+                x
+            );
             format!("'{}'", x)
         }
         Expr::Bool(x) => x.to_string(),
@@ -29,24 +32,43 @@ pub fn translate(expr: &Expr) -> String {
             let mut parts: Vec<&str> = enum_path.iter().map(|s| s.as_str()).collect();
             parts.push(label);
             parts.join("::")
-        },
-        Expr::List(items) =>
-            format!("[{}]", items.iter().map(translate).collect::<Vec<_>>().join(", ")),
+        }
+        Expr::List(items) => format!(
+            "[{}]",
+            items.iter().map(translate).collect::<Vec<_>>().join(", ")
+        ),
 
         Expr::Name(name) => name.clone(),
-        Expr::Attribute { value, attr_name } =>
-            format!("{}.{}", translate(value), attr_name),
-        Expr::MethodCall { value, method_name, args } =>
-            format!("{}.{}({})", translate(value), method_name, args.iter().map(translate).collect::<Vec<_>>().join(", ")),
+        Expr::Attribute { value, attr_name } => format!("{}.{}", translate(value), attr_name),
+        Expr::MethodCall {
+            value,
+            method_name,
+            args,
+        } => format!(
+            "{}.{}({})",
+            translate(value),
+            method_name,
+            args.iter().map(translate).collect::<Vec<_>>().join(", ")
+        ),
 
-        Expr::UnaryOp { op, v } =>
-            format!("({}{})", translate_unary_op(op), translate(v)),
-        Expr::BinaryOp { l, op, r } =>
-            format!("({} {} {})", translate(l), translate_binary_op(op), translate(r)),
-        Expr::CondOp { cond, if_true, if_false } =>
-            format!("({} ? {} : {})", translate(cond), translate(if_true), translate(if_false)),
-        Expr::Subscript { value, idx } =>
-            format!("{}[{}]", translate(value), translate(idx)),
+        Expr::UnaryOp { op, v } => format!("({}{})", translate_unary_op(op), translate(v)),
+        Expr::BinaryOp { l, op, r } => format!(
+            "({} {} {})",
+            translate(l),
+            translate_binary_op(op),
+            translate(r)
+        ),
+        Expr::CondOp {
+            cond,
+            if_true,
+            if_false,
+        } => format!(
+            "({} ? {} : {})",
+            translate(cond),
+            translate(if_true),
+            translate(if_false)
+        ),
+        Expr::Subscript { value, idx } => format!("{}[{}]", translate(value), translate(idx)),
     }
 }
 
@@ -92,9 +114,9 @@ fn should_format_float_with_exponent(value: f64) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use num_bigint::BigUint;
-    use crate::ast::utils::PositiveFiniteF64;
     use super::*;
+    use crate::ast::utils::PositiveFiniteF64;
+    use num_bigint::BigUint;
 
     #[test]
     fn int() {
@@ -213,7 +235,10 @@ mod tests {
     #[test]
     fn enum_member() {
         let expr = Expr::EnumMember {
-            enum_path: vec!["some_type", "port"].iter().map(|s| s.to_string()).collect(),
+            enum_path: vec!["some_type", "port"]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
             label: "http".to_string(),
         };
         assert_eq!(translate(&expr), "some_type::port::http");
@@ -230,7 +255,10 @@ mod tests {
                 r: Box::new(Expr::Name("person_name".to_string())),
             },
         ]);
-        assert_eq!(translate(&expr), "['literal', my_string_attr, ('hello ' + person_name)]");
+        assert_eq!(
+            translate(&expr),
+            "['literal', my_string_attr, ('hello ' + person_name)]"
+        );
     }
 
     #[test]
@@ -318,19 +346,28 @@ mod tests {
 
     #[test]
     fn unary_neg() {
-        let expr = Expr::UnaryOp { op: UnaryOp::Neg, v: Box::new(Expr::Int(BigUint::from(100_u32))) };
+        let expr = Expr::UnaryOp {
+            op: UnaryOp::Neg,
+            v: Box::new(Expr::Int(BigUint::from(100_u32))),
+        };
         assert_eq!(translate(&expr), "(-100)");
     }
 
     #[test]
     fn unary_not() {
-        let expr = Expr::UnaryOp { op: UnaryOp::Not, v: Box::new(Expr::Bool(false)) };
+        let expr = Expr::UnaryOp {
+            op: UnaryOp::Not,
+            v: Box::new(Expr::Bool(false)),
+        };
         assert_eq!(translate(&expr), "(not false)");
     }
 
     #[test]
     fn unary_inv() {
-        let expr = Expr::UnaryOp { op: UnaryOp::Inv, v: Box::new(Expr::Int(BigUint::from(3_u32))) };
+        let expr = Expr::UnaryOp {
+            op: UnaryOp::Inv,
+            v: Box::new(Expr::Int(BigUint::from(3_u32))),
+        };
         assert_eq!(translate(&expr), "(~3)");
     }
 
@@ -384,7 +421,10 @@ mod tests {
     #[test]
     fn binary_rem() {
         let expr = Expr::BinaryOp {
-            l: Box::new(Expr::UnaryOp { op: UnaryOp::Neg, v: Box::new(Expr::Int(BigUint::from(3_u32))) }),
+            l: Box::new(Expr::UnaryOp {
+                op: UnaryOp::Neg,
+                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+            }),
             op: BinaryOp::Rem,
             r: Box::new(Expr::Int(BigUint::from(4_u32))),
         };
@@ -484,7 +524,10 @@ mod tests {
     #[test]
     fn binary_and() {
         let expr = Expr::BinaryOp {
-            l: Box::new(Expr::UnaryOp { op: UnaryOp::Not, v: Box::new(Expr::Bool(true)) }),
+            l: Box::new(Expr::UnaryOp {
+                op: UnaryOp::Not,
+                v: Box::new(Expr::Bool(true)),
+            }),
             op: BinaryOp::And,
             r: Box::new(Expr::Bool(false)),
         };
@@ -494,7 +537,10 @@ mod tests {
     #[test]
     fn binary_or() {
         let expr = Expr::BinaryOp {
-            l: Box::new(Expr::UnaryOp { op: UnaryOp::Not, v: Box::new(Expr::Bool(false)) }),
+            l: Box::new(Expr::UnaryOp {
+                op: UnaryOp::Not,
+                v: Box::new(Expr::Bool(false)),
+            }),
             op: BinaryOp::Or,
             r: Box::new(Expr::Bool(true)),
         };
@@ -533,12 +579,18 @@ mod tests {
     fn binary_bit_and() {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::BinaryOp {
-                l: Box::new(Expr::Attribute { value: Box::new(Expr::Name("_io".to_string())), attr_name: "pos".to_string() }),
+                l: Box::new(Expr::Attribute {
+                    value: Box::new(Expr::Name("_io".to_string())),
+                    attr_name: "pos".to_string(),
+                }),
                 op: BinaryOp::Add,
                 r: Box::new(Expr::Int(BigUint::from(3_u32))),
             }),
             op: BinaryOp::BitAnd,
-            r: Box::new(Expr::UnaryOp { op: UnaryOp::Inv, v: Box::new(Expr::Int(BigUint::from(3_u32))) }),
+            r: Box::new(Expr::UnaryOp {
+                op: UnaryOp::Inv,
+                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+            }),
         };
         assert_eq!(translate(&expr), "((_io.pos + 3) & (~3))");
     }
@@ -546,7 +598,10 @@ mod tests {
     #[test]
     fn binary_shl() {
         let expr = Expr::BinaryOp {
-            l: Box::new(Expr::UnaryOp { op: UnaryOp::Neg, v: Box::new(Expr::Int(BigUint::from(1_u32))) }),
+            l: Box::new(Expr::UnaryOp {
+                op: UnaryOp::Neg,
+                v: Box::new(Expr::Int(BigUint::from(1_u32))),
+            }),
             op: BinaryOp::Shl,
             r: Box::new(Expr::Int(BigUint::from(3_u32))),
         };
@@ -582,7 +637,10 @@ mod tests {
             if_true: Box::new(Expr::Str("nonsense".to_string())),
             if_false: Box::new(Expr::Str("makes sense".to_string())),
         };
-        assert_eq!(translate(&expr), "((true == false) ? 'nonsense' : 'makes sense')")
+        assert_eq!(
+            translate(&expr),
+            "((true == false) ? 'nonsense' : 'makes sense')"
+        )
     }
 
     #[test]
@@ -607,7 +665,10 @@ mod tests {
                         Expr::Int(BigUint::from(300_u32)),
                     ]),
                     Expr::List(vec![
-                        Expr::UnaryOp { op: UnaryOp::Neg, v: Box::new(Expr::Int(BigUint::from(1_u32))) },
+                        Expr::UnaryOp {
+                            op: UnaryOp::Neg,
+                            v: Box::new(Expr::Int(BigUint::from(1_u32))),
+                        },
                         Expr::Int(BigUint::from(1_u32)),
                     ]),
                 ])),

@@ -8,17 +8,41 @@ pub enum Expr {
     Float(PositiveFiniteF64),
     Str(String),
     Bool(bool),
-    EnumMember { enum_path: Vec<String>, label: String },
+    EnumMember {
+        enum_path: Vec<String>,
+        label: String,
+    },
     List(Vec<Expr>),
 
     Name(String),
-    Attribute { value: Box<Expr>, attr_name: String },
-    MethodCall { value: Box<Expr>, method_name: String, args: Vec<Expr> },
+    Attribute {
+        value: Box<Expr>,
+        attr_name: String,
+    },
+    MethodCall {
+        value: Box<Expr>,
+        method_name: String,
+        args: Vec<Expr>,
+    },
 
-    UnaryOp { op: UnaryOp, v: Box<Expr> },
-    BinaryOp { l: Box<Expr>, op: BinaryOp, r: Box<Expr> },
-    CondOp { cond: Box<Expr>, if_true: Box<Expr>, if_false: Box<Expr> },
-    Subscript { value: Box<Expr>, idx: Box<Expr> },
+    UnaryOp {
+        op: UnaryOp,
+        v: Box<Expr>,
+    },
+    BinaryOp {
+        l: Box<Expr>,
+        op: BinaryOp,
+        r: Box<Expr>,
+    },
+    CondOp {
+        cond: Box<Expr>,
+        if_true: Box<Expr>,
+        if_false: Box<Expr>,
+    },
+    Subscript {
+        value: Box<Expr>,
+        idx: Box<Expr>,
+    },
 }
 
 /// https://github.com/Mingun/ksc-rs/blob/7e6a82f0b6b09f9d7a6a9ae38e361b92f3a9c0e0/src/parser/expressions.rs#L274-L281
