@@ -107,8 +107,7 @@ fn should_format_float_with_exponent(value: f64) -> bool {
     if value == 0.0 {
         false
     } else {
-        let ln = value.ln();
-        ln >= 16.0 * std::f64::consts::LN_10 || ln <= -4.0 * std::f64::consts::LN_10
+        !(1e-4..1e16).contains(&value)
     }
 }
 
