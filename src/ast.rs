@@ -1,10 +1,9 @@
-use num_bigint::BigUint;
 use utils::PositiveFiniteF64;
 
 pub mod utils;
 
 pub enum Expr {
-    Int(BigUint),
+    Int(u64),
     Float(PositiveFiniteF64),
     Str(String),
     Bool(bool),

@@ -118,11 +118,10 @@ fn should_format_float_with_exponent(value: f64) -> bool {
 mod tests {
     use super::*;
     use crate::ast::utils::PositiveFiniteF64;
-    use num_bigint::BigUint;
 
     #[test]
     fn int() {
-        let expr = Expr::Int(BigUint::from(u64::MAX));
+        let expr = Expr::Int(u64::MAX);
         assert_eq!(translate(&expr), "18446744073709551615");
     }
 
@@ -304,7 +303,7 @@ mod tests {
     #[test]
     fn attribute_zero_int_to_s() {
         let expr = Expr::Attribute {
-            value: Box::new(Expr::Int(BigUint::from(0_u32))),
+            value: Box::new(Expr::Int(0)),
             attr_name: "to_s".to_string(),
         };
         assert_eq!(translate(&expr), "0.to_s");
@@ -315,7 +314,7 @@ mod tests {
         let expr = Expr::Attribute {
             value: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+                v: Box::new(Expr::Int(3)),
             }),
             attr_name: "to_s".to_string(),
         };
@@ -364,10 +363,7 @@ mod tests {
                 r: Box::new(Expr::Str("56789".to_string())),
             }),
             method_name: "substring".to_string(),
-            args: vec![
-                Expr::Int(BigUint::from(2_u32)),
-                Expr::Int(BigUint::from(7_u32)),
-            ],
+            args: vec![Expr::Int(2), Expr::Int(7)],
         };
         assert_eq!(translate(&expr), "(str_0_to_4 + '56789').substring(2, 7)");
     }
@@ -376,7 +372,7 @@ mod tests {
     fn unary_neg() {
         let expr = Expr::UnaryOp {
             op: UnaryOp::Neg,
-            v: Box::new(Expr::Int(BigUint::from(100_u32))),
+            v: Box::new(Expr::Int(100)),
         };
         assert_eq!(translate(&expr), "(-100)");
     }
@@ -394,7 +390,7 @@ mod tests {
     fn unary_inv() {
         let expr = Expr::UnaryOp {
             op: UnaryOp::Inv,
-            v: Box::new(Expr::Int(BigUint::from(3_u32))),
+            v: Box::new(Expr::Int(3)),
         };
         assert_eq!(translate(&expr), "(~3)");
     }
@@ -426,11 +422,11 @@ mod tests {
     #[test]
     fn binary_mul() {
         let expr = Expr::BinaryOp {
-            l: Box::new(Expr::Int(BigUint::from(2_u32))),
+            l: Box::new(Expr::Int(2)),
             op: BinaryOp::Mul,
             r: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+                v: Box::new(Expr::Int(3)),
             }),
         };
         assert_eq!(translate(&expr), "(2 * (-3))");
@@ -441,7 +437,7 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::Float(PositiveFiniteF64::try_from(64.5).unwrap())),
             op: BinaryOp::Div,
-            r: Box::new(Expr::Int(BigUint::from(100_u32))),
+            r: Box::new(Expr::Int(100)),
         };
         assert_eq!(translate(&expr), "(64.5 / 100)");
     }
@@ -451,10 +447,10 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+                v: Box::new(Expr::Int(3)),
             }),
             op: BinaryOp::Rem,
-            r: Box::new(Expr::Int(BigUint::from(4_u32))),
+            r: Box::new(Expr::Int(4)),
         };
         assert_eq!(translate(&expr), "((-3) % 4)");
     }
@@ -583,7 +579,7 @@ mod tests {
             r: Box::new(Expr::BinaryOp {
                 l: Box::new(Expr::Name("hi".to_string())),
                 op: BinaryOp::Shl,
-                r: Box::new(Expr::Int(BigUint::from(16_u32))),
+                r: Box::new(Expr::Int(16)),
             }),
         };
         assert_eq!(translate(&expr), "(lo | (hi << 16))");
@@ -598,7 +594,7 @@ mod tests {
                 r: Box::new(Expr::Name("y".to_string())),
             }),
             op: BinaryOp::Lt,
-            r: Box::new(Expr::Int(BigUint::from(0_u32))),
+            r: Box::new(Expr::Int(0)),
         };
         assert_eq!(translate(&expr), "((x ^ y) < 0)");
     }
@@ -612,12 +608,12 @@ mod tests {
                     attr_name: "pos".to_string(),
                 }),
                 op: BinaryOp::Add,
-                r: Box::new(Expr::Int(BigUint::from(3_u32))),
+                r: Box::new(Expr::Int(3)),
             }),
             op: BinaryOp::BitAnd,
             r: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Inv,
-                v: Box::new(Expr::Int(BigUint::from(3_u32))),
+                v: Box::new(Expr::Int(3)),
             }),
         };
         assert_eq!(translate(&expr), "((_io.pos + 3) & (~3))");
@@ -628,10 +624,10 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(BigUint::from(1_u32))),
+                v: Box::new(Expr::Int(1)),
             }),
             op: BinaryOp::Shl,
-            r: Box::new(Expr::Int(BigUint::from(3_u32))),
+            r: Box::new(Expr::Int(3)),
         };
         assert_eq!(translate(&expr), "((-1) << 3)");
     }
@@ -642,13 +638,13 @@ mod tests {
             l: Box::new(Expr::BinaryOp {
                 l: Box::new(Expr::Name("packed".to_string())),
                 op: BinaryOp::BitAnd,
-                r: Box::new(Expr::Int(BigUint::from(0b1111_1000_0000_0000_u32))),
+                r: Box::new(Expr::Int(0b1111_1000_0000_0000)),
             }),
             op: BinaryOp::Shr,
             r: Box::new(Expr::BinaryOp {
-                l: Box::new(Expr::Int(BigUint::from(3_u32))),
+                l: Box::new(Expr::Int(3)),
                 op: BinaryOp::Add,
-                r: Box::new(Expr::Int(BigUint::from(8_u32))),
+                r: Box::new(Expr::Int(8)),
             }),
         };
         assert_eq!(translate(&expr), "((packed & 63488) >> (3 + 8))");
@@ -678,7 +674,7 @@ mod tests {
                 value: Box::new(Expr::Name("cont".to_string())),
                 attr_name: "items".to_string(),
             }),
-            idx: Box::new(Expr::Int(BigUint::from(0_u32))),
+            idx: Box::new(Expr::Int(0)),
         };
         assert_eq!(translate(&expr), "cont.items[0]");
     }
@@ -688,16 +684,13 @@ mod tests {
         let expr = Expr::Subscript {
             value: Box::new(Expr::Subscript {
                 value: Box::new(Expr::List(vec![
-                    Expr::List(vec![
-                        Expr::Int(BigUint::from(1_u32)),
-                        Expr::Int(BigUint::from(300_u32)),
-                    ]),
+                    Expr::List(vec![Expr::Int(1), Expr::Int(300)]),
                     Expr::List(vec![
                         Expr::UnaryOp {
                             op: UnaryOp::Neg,
-                            v: Box::new(Expr::Int(BigUint::from(1_u32))),
+                            v: Box::new(Expr::Int(1)),
                         },
-                        Expr::Int(BigUint::from(1_u32)),
+                        Expr::Int(1),
                     ]),
                 ])),
                 idx: Box::new(Expr::Attribute {
@@ -705,7 +698,7 @@ mod tests {
                     attr_name: "to_i".to_string(),
                 }),
             }),
-            idx: Box::new(Expr::Int(BigUint::from(0_u32))),
+            idx: Box::new(Expr::Int(0)),
         };
         assert_eq!(translate(&expr), "[[1, 300], [(-1), 1]]['1'.to_i][0]");
     }
