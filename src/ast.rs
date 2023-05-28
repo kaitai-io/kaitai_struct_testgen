@@ -44,7 +44,7 @@ pub enum Expr {
     },
 }
 
-/// https://github.com/Mingun/ksc-rs/blob/7e6a82f0b6b09f9d7a6a9ae38e361b92f3a9c0e0/src/parser/expressions.rs#L274-L281
+/// https://github.com/Mingun/ksc-rs/blob/7e6a82f/src/parser/expressions.rs#L274-L281
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum UnaryOp {
     /// `-`: Negation
@@ -55,7 +55,7 @@ pub enum UnaryOp {
     Inv,
 }
 
-/// https://github.com/Mingun/ksc-rs/blob/7e6a82f0b6b09f9d7a6a9ae38e361b92f3a9c0e0/src/parser/expressions.rs#L285-L326
+/// https://github.com/Mingun/ksc-rs/blob/7e6a82f/src/parser/expressions.rs#L285-L326
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum BinaryOp {
     /// `+`: Addition or concatenation
