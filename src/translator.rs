@@ -207,15 +207,30 @@ mod tests {
 
     #[test]
     fn str_empty() {
-        let expr = Expr::Str("".to_string());
-        // assert_eq!(translate(&expr), "\"\"");
-        assert_eq!(translate(&expr), "''");
+        let expr = Expr::Str(r"".to_string());
+        // assert_eq!(translate(&expr), r#""""#);
+        assert_eq!(translate(&expr), r"''");
+    }
+
+    #[test]
+    fn str_with_backslash() {
+        let expr = Expr::Str(r"w\x".to_string());
+        // assert_eq!(translate(&expr), r#""w\\x""#);
+        assert_eq!(translate(&expr), r"'w\x'");
+    }
+
+    #[test]
+    fn str_with_double_quote() {
+        let expr = Expr::Str(r#"y"z"#.to_string());
+        // assert_eq!(translate(&expr), r#""y\"z""#);
+        assert_eq!(translate(&expr), r#"'y"z'"#);
     }
 
     #[test]
     #[should_panic(expected = "strings containing a single quote (') not supported yet")]
     fn str_with_single_quote() {
-        let expr = Expr::Str("a'b".to_string());
+        let expr = Expr::Str(r"a'b".to_string());
+        // assert_eq!(translate(&expr), r#""a'b""#);
         translate(&expr);
     }
 
