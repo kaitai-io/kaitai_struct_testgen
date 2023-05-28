@@ -2,6 +2,7 @@ use utils::PositiveFiniteF64;
 
 pub mod utils;
 
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Expr {
     Int(u64),
     Float(PositiveFiniteF64),

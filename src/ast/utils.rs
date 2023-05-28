@@ -1,9 +1,35 @@
-#[derive(Debug)]
+use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
+
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct PositiveFiniteF64 {
     value: f64,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+// PositiveFiniteF64 doesn't permit NaN values, so equality comparison is an equivalence relation
+impl Eq for PositiveFiniteF64 {}
+
+impl Hash for PositiveFiniteF64 {
+    // inspired by https://github.com/reem/rust-ordered-float/blob/v3.7.0/src/lib.rs#L159-L169
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        // we only have one zero (with the positive sign) and don't have NaNs, so it should be fine
+        // to just hash the raw bits
+        self.value.to_bits().hash(state)
+    }
+}
+
+// Unfortunately, Clippy (as of version rust-1.70.0) doesn't recognize this trivial implementation
+// as correct, even though it has been suggested in
+// https://github.com/rust-lang/rust-clippy/issues/1621#issuecomment-450339758
+#[allow(clippy::derive_ord_xor_partial_ord)]
+impl Ord for PositiveFiniteF64 {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // PositiveFiniteF64 doesn't permit NaN values, so partial_cmp will always give an ordering
+        self.partial_cmp(other).unwrap()
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum InvalidFloatError {
     Negative,
     NonFinite,
