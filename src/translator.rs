@@ -20,6 +20,9 @@ pub fn translate(expr: &Expr) -> String {
             }
         }
         Expr::Str(x) => {
+            // See https://doc.kaitai.io/user_guide.html#_basic_data_types:
+            // > Everything between single quotes is interpreted literally, i.e. there is no way one
+            // > can include a single quote inside a single quoted string.
             assert!(
                 !x.contains('\''),
                 "strings containing a single quote (') not supported yet (got {})",
@@ -208,30 +211,41 @@ mod tests {
     #[test]
     fn str_empty() {
         let expr = Expr::Str(r"".to_string());
-        // assert_eq!(translate(&expr), r#""""#);
         assert_eq!(translate(&expr), r"''");
+        // assert_eq!(translate(&expr), r#""""#);
     }
 
     #[test]
     fn str_with_backslash() {
         let expr = Expr::Str(r"w\x".to_string());
-        // assert_eq!(translate(&expr), r#""w\\x""#);
+        // See https://doc.kaitai.io/user_guide.html#_basic_data_types:
+        // > Single quoted strings are interpreted literally, i.e. backslash \, double quotes " and
+        // > other possible special symbols carry no special meaning, they would be just considered
+        // > a part of the string.
         assert_eq!(translate(&expr), r"'w\x'");
+        // assert_eq!(translate(&expr), r#""w\\x""#);
     }
 
     #[test]
     fn str_with_double_quote() {
         let expr = Expr::Str(r#"y"z"#.to_string());
-        // assert_eq!(translate(&expr), r#""y\"z""#);
+        // See https://doc.kaitai.io/user_guide.html#_basic_data_types:
+        // > Single quoted strings are interpreted literally, i.e. backslash \, double quotes " and
+        // > other possible special symbols carry no special meaning, they would be just considered
+        // > a part of the string.
         assert_eq!(translate(&expr), r#"'y"z'"#);
+        // assert_eq!(translate(&expr), r#""y\"z""#);
     }
 
     #[test]
     #[should_panic(expected = "strings containing a single quote (') not supported yet")]
     fn str_with_single_quote() {
         let expr = Expr::Str(r"a'b".to_string());
-        // assert_eq!(translate(&expr), r#""a'b""#);
+        // See https://doc.kaitai.io/user_guide.html#_basic_data_types:
+        // > Everything between single quotes is interpreted literally, i.e. there is no way one can
+        // > include a single quote inside a single quoted string.
         translate(&expr);
+        // assert_eq!(translate(&expr), r#""a'b""#);
     }
 
     #[test]
