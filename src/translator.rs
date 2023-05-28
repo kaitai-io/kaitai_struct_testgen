@@ -54,7 +54,7 @@ pub fn translate(expr: &Expr) -> String {
             args.iter().map(translate).collect::<Vec<_>>().join(", ")
         ),
 
-        Expr::UnaryOp { op, v } => format!("({}{})", translate_unary_op(op), translate(v)),
+        Expr::UnaryOp { op, value } => format!("({}{})", translate_unary_op(op), translate(value)),
         Expr::BinaryOp { l, op, r } => format!(
             "({} {} {})",
             translate(l),
@@ -314,7 +314,7 @@ mod tests {
         let expr = Expr::Attribute {
             value: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(3)),
+                value: Box::new(Expr::Int(3)),
             }),
             attr_name: "to_s".to_string(),
         };
@@ -335,7 +335,7 @@ mod tests {
         let expr = Expr::Attribute {
             value: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Float(PositiveFiniteF64::try_from(1.75).unwrap())),
+                value: Box::new(Expr::Float(PositiveFiniteF64::try_from(1.75).unwrap())),
             }),
             attr_name: "to_i".to_string(),
         };
@@ -372,7 +372,7 @@ mod tests {
     fn unary_neg() {
         let expr = Expr::UnaryOp {
             op: UnaryOp::Neg,
-            v: Box::new(Expr::Int(100)),
+            value: Box::new(Expr::Int(100)),
         };
         assert_eq!(translate(&expr), "(-100)");
     }
@@ -381,7 +381,7 @@ mod tests {
     fn unary_not() {
         let expr = Expr::UnaryOp {
             op: UnaryOp::Not,
-            v: Box::new(Expr::Bool(false)),
+            value: Box::new(Expr::Bool(false)),
         };
         assert_eq!(translate(&expr), "(not false)");
     }
@@ -390,7 +390,7 @@ mod tests {
     fn unary_inv() {
         let expr = Expr::UnaryOp {
             op: UnaryOp::Inv,
-            v: Box::new(Expr::Int(3)),
+            value: Box::new(Expr::Int(3)),
         };
         assert_eq!(translate(&expr), "(~3)");
     }
@@ -413,7 +413,7 @@ mod tests {
             op: BinaryOp::Sub,
             r: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Float(PositiveFiniteF64::try_from(2.72).unwrap())),
+                value: Box::new(Expr::Float(PositiveFiniteF64::try_from(2.72).unwrap())),
             }),
         };
         assert_eq!(translate(&expr), "(6.28 - (-2.72))");
@@ -426,7 +426,7 @@ mod tests {
             op: BinaryOp::Mul,
             r: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(3)),
+                value: Box::new(Expr::Int(3)),
             }),
         };
         assert_eq!(translate(&expr), "(2 * (-3))");
@@ -447,7 +447,7 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(3)),
+                value: Box::new(Expr::Int(3)),
             }),
             op: BinaryOp::Rem,
             r: Box::new(Expr::Int(4)),
@@ -550,7 +550,7 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Not,
-                v: Box::new(Expr::Bool(true)),
+                value: Box::new(Expr::Bool(true)),
             }),
             op: BinaryOp::And,
             r: Box::new(Expr::Bool(false)),
@@ -563,7 +563,7 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Not,
-                v: Box::new(Expr::Bool(false)),
+                value: Box::new(Expr::Bool(false)),
             }),
             op: BinaryOp::Or,
             r: Box::new(Expr::Bool(true)),
@@ -613,7 +613,7 @@ mod tests {
             op: BinaryOp::BitAnd,
             r: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Inv,
-                v: Box::new(Expr::Int(3)),
+                value: Box::new(Expr::Int(3)),
             }),
         };
         assert_eq!(translate(&expr), "((_io.pos + 3) & (~3))");
@@ -624,7 +624,7 @@ mod tests {
         let expr = Expr::BinaryOp {
             l: Box::new(Expr::UnaryOp {
                 op: UnaryOp::Neg,
-                v: Box::new(Expr::Int(1)),
+                value: Box::new(Expr::Int(1)),
             }),
             op: BinaryOp::Shl,
             r: Box::new(Expr::Int(3)),
@@ -688,7 +688,7 @@ mod tests {
                     Expr::List(vec![
                         Expr::UnaryOp {
                             op: UnaryOp::Neg,
-                            v: Box::new(Expr::Int(1)),
+                            value: Box::new(Expr::Int(1)),
                         },
                         Expr::Int(1),
                     ]),
