@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
+use thiserror::Error;
 
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct PositiveFiniteF64 {
@@ -29,9 +30,11 @@ impl Ord for PositiveFiniteF64 {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Error, Eq, PartialEq, Hash)]
 pub enum InvalidFloatError {
+    #[error("expected a positive value, but got a negative")]
     Negative,
+    #[error("expected a finite value, but got a non-finite (NaN or infinity)")]
     NonFinite,
 }
 
@@ -39,15 +42,13 @@ impl TryFrom<f64> for PositiveFiniteF64 {
     type Error = InvalidFloatError;
 
     fn try_from(value: f64) -> Result<Self, Self::Error> {
-        if value.is_finite() {
-            if value.is_sign_positive() {
-                Ok(Self { value })
-            } else {
-                Err(InvalidFloatError::Negative)
-            }
-        } else {
-            Err(InvalidFloatError::NonFinite)
+        if !value.is_finite() {
+            return Err(InvalidFloatError::NonFinite);
         }
+        if value.is_sign_negative() {
+            return Err(InvalidFloatError::Negative);
+        }
+        Ok(Self { value })
     }
 }
 
